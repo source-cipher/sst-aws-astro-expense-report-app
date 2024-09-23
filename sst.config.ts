@@ -20,6 +20,78 @@ export default $config({
     };
   },
   async run() {
-    new sst.aws.Astro("MyWeb");
-  },
+    const expenseReportsTable = new sst.aws.Dynamo("ExpenseReports", {
+      fields: {
+        pk: "string",
+        sk: "string",
+      },
+      primaryIndex: {
+        hashKey: "pk", rangeKey: "sk"
+      }
+    });
+
+    const expensesApi = new sst.aws.ApiGatewayV2('ExpensesApi', {
+      cors: {
+        allowOrigins: ["*"],
+        allowMethods: ["GET"],
+        allowHeaders: ["*"],
+      },
+      transform: {
+        route: {
+          handler: (args, opts) => {
+            args.environment = {
+              EXPENSE_REPORTS_TABLE: expenseReportsTable.name
+            };
+            args.architecture = "arm64";
+          }
+        }
+      }
+    });
+
+    expensesApi.route("GET /reports", {
+      handler: "src/functions/get-expense-reports.handler",
+      permissions: [{
+        actions: ["dynamodb:Query"],
+        resources: [expenseReportsTable.arn]
+      }]
+    });
+
+    expensesApi.route("POST /reports", {
+      handler: "src/functions/add-expense-report.handler",
+      permissions: [{
+        actions: ["dynamodb:PutItem"],
+        resources: [expenseReportsTable.arn]
+      }]
+    });
+
+    expensesApi.route("GET /reports/{id}", {
+      handler: "src/functions/get-expense-report.handler",
+      permissions: [{
+        actions: ["dynamodb:GetItem"],
+        resources: [expenseReportsTable.arn]
+      }]
+    });
+
+    expensesApi.route("POST /reports/{id}/expenses", {
+      handler: "src/functions/add-expense.handler",
+      permissions: [{
+        actions: ["dynamodb:PutItem"],
+        resources: [expenseReportsTable.arn]
+      }]
+    });
+
+    expensesApi.route("GET /reports/{id}/expenses", {
+      handler: "src/functions/get-expenses.handler",
+      permissions: [{
+        actions: ["dynamodb:Query"],
+        resources: [expenseReportsTable.arn]
+      }]
+    });
+
+    new sst.aws.Astro("ExpenseReportWebApp", {
+      environment: {
+        PUBLIC_EXPENSE_REPORT_API: expensesApi.url
+      }
+    });
+  }
 });
