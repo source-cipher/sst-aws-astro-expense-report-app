@@ -27,4 +27,4 @@ pnpm-debug.log*
 .sst
 
 # vscode
-#.vscode ***REMOVE THE COMMENT ONCE PUSHED UP
+.vscode

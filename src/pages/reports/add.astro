@@ -5,7 +5,7 @@ if (Astro.request.method === "POST") {
   try {
     const data = await Astro.request.formData();
     const name = data.get("name");
-    await fetch(`${import.meta.env.PUBLIC_EXPENSE_REPORT_API}reports`, {
+    await fetch(`${import.meta.env.PUBLIC_EXPENSE_REPORT_API}/reports`, {
       method: 'POST',
       body: JSON.stringify({
         name
@@ -19,7 +19,6 @@ if (Astro.request.method === "POST") {
     }
   }
 }
-
 ---
 
 <Layout title="Add Expense Report">

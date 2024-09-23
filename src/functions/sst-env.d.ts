@@ -5,16 +5,16 @@ import "sst"
 export {}
 declare module "sst" {
   export interface Resource {
+    "ExpenseReportWebApp": {
+      "type": "sst.aws.Astro"
+      "url": string
+    }
     "ExpenseReports": {
       "name": string
       "type": "sst.aws.Dynamo"
     }
     "ExpensesApi": {
-      "type": "sst.aws.ApiGatewayV1"
-      "url": string
-    }
-    "MyWeb": {
-      "type": "sst.aws.Astro"
+      "type": "sst.aws.ApiGatewayV2"
       "url": string
     }
   }

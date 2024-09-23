@@ -1,15 +1,15 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 
-const { report } = Astro.params;
+const { reportId } = Astro.params;
 
 if (Astro.request.method === "POST") {
   try {
     const data = await Astro.request.formData();
     const description = data.get("description");
-    const amount = data.get("amount");
+    const amount = Number(data.get("amount") || 0);
 
-    await fetch(`${import.meta.env.PUBLIC_EXPENSE_REPORT_API}reports/${report}/expenses`, {
+    await fetch(`${import.meta.env.PUBLIC_EXPENSE_REPORT_API}/reports/${reportId}/expenses`, {
       method: 'POST',
       body: JSON.stringify({
         description,
@@ -17,7 +17,7 @@ if (Astro.request.method === "POST") {
       })
     });
 
-    return Astro.redirect(`/reports/${report}/expenses`);
+    return Astro.redirect(`/reports/${reportId}/expenses`);
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);

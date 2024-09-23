@@ -27,10 +27,15 @@ export default $config({
       },
       primaryIndex: {
         hashKey: "pk", rangeKey: "sk"
-      },
+      }
     });
 
-    const expensesApi = new sst.aws.ApiGatewayV1('ExpensesApi', {
+    const expensesApi = new sst.aws.ApiGatewayV2('ExpensesApi', {
+      cors: {
+        allowOrigins: ["*"],
+        allowMethods: ["GET"],
+        allowHeaders: ["*"],
+      },
       transform: {
         route: {
           handler: (args, opts) => {
@@ -83,9 +88,7 @@ export default $config({
       }]
     });
 
-    expensesApi.deploy();
-
-    new sst.aws.Astro("MyWeb", {
+    new sst.aws.Astro("ExpenseReportWebApp", {
       environment: {
         PUBLIC_EXPENSE_REPORT_API: expensesApi.url
       }

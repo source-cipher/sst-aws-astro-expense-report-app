@@ -7,7 +7,7 @@ const client = new DynamoDBClient({});
 const dynamodb = DynamoDBDocumentClient.from(client);
 
 export async function handler(event) {
-  const userIpId = ipToId(event.requestContext.identity.sourceIp);
+  const userIpId = ipToId(event.requestContext.http.sourceIp);
   const body = JSON.parse(event.body);
   const expenseReportId = ulid();
   
@@ -28,7 +28,7 @@ export async function handler(event) {
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'This is bad.' })
+      body: JSON.stringify({ message: 'Something went wrong.' })
     };
   }
 
