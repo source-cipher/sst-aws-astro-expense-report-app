@@ -14,7 +14,7 @@ export default $config({
   },
   app(input) {
     return {
-      name: "expense-report-sst-astro",
+      name: "aws-astro",
       removal: input?.stage === "production" ? "retain" : "remove",
       home: "aws",
     };
