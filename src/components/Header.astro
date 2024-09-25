@@ -1,0 +1,28 @@
+---
+import backIcon from "../../public/back.svg?raw";
+import homeIcon from "../../public/home.svg?raw"; 
+
+interface Props {
+  back?: string
+}
+const { back } = Astro.props;
+---
+
+<div class="bg-emerald-600 min-h-10 flex items-center justify-between p-1">
+  <div>
+  {
+    back && (
+      <div class="rounded-full p-2 hover:bg-emerald-700 hover:cursor-pointer">
+        <a href={back}>
+          <Fragment set:html={backIcon} />
+        </a>
+      </div>
+    )
+  }
+  </div>
+  <div class="rounded-full p-2 hover:bg-emerald-700 hover:cursor-pointer">
+    <a href='/'>
+      <Fragment set:html={homeIcon} />
+    </a>
+  </div>
+</div>

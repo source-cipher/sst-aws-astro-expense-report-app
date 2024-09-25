@@ -6,6 +6,11 @@ import tailwind from "@astrojs/tailwind";
 // https://astro.build/config
 export default defineConfig({
   output: "server",
-  adapter: aws(),
+  adapter: aws({
+    serverRoutes: [
+      "reports/add",
+      "reports/*/expenses/add"
+    ]
+  }),
   integrations: [tailwind()]
 });
