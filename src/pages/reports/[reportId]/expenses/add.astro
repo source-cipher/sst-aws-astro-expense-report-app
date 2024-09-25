@@ -1,4 +1,5 @@
 ---
+import Header from '../../../../components/Header.astro';
 import Layout from '../../../../layouts/Layout.astro';
 
 const { reportId } = Astro.params;
@@ -26,8 +27,9 @@ if (Astro.request.method === "POST") {
 }
 ---
 
-<Layout title="Add Expense Report">
-  <div class="h-dvh flex flex-col items-center justify-center">
+<Layout title="Add Expense">
+  <Header back=`/reports/${reportId}/expenses`></Header>
+  <div class="m-auto">
     <div class="bg-slate-700 rounded-md gap-2 flex flex-col bg-slate-700 drop-shadow-md">
       <div class="bg-slate-600 rounded-t-md p-4">
         <h1 class="text-3xl font-bold text-white">Add Expense</h1>
@@ -39,7 +41,7 @@ if (Astro.request.method === "POST") {
         </div>
         <div class="flex flex-col">
           <label class="uppercase text-slate-400 text-sm font-bold">Amount</label>
-          <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" placeholder="Enter expense amount" type="number" name="amount" required/>
+          <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" placeholder="Enter expense amount" type="number" name="amount" step=".01" required/>
         </div>
         <button class="self-end drop-shadow-md rounded-md p-1 px-3 m-2 bg-emerald-600 text-white hover:bg-emerald-700">Submit</button>
       </form>

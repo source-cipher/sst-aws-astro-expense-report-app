@@ -1,18 +1,21 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
 
 if (Astro.request.method === "POST") {
   try {
     const data = await Astro.request.formData();
     const name = data.get("name");
-    await fetch(`${import.meta.env.PUBLIC_EXPENSE_REPORT_API}/reports`, {
+    let addResponse = await fetch(`${import.meta.env.PUBLIC_EXPENSE_REPORT_API}/reports`, {
       method: 'POST',
       body: JSON.stringify({
         name
       })
     });
 
-    return Astro.redirect("/reports");
+    addResponse = await addResponse.json();
+
+    return Astro.redirect(`/reports/${(addResponse as any)?.id}/expenses`);
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
@@ -22,7 +25,8 @@ if (Astro.request.method === "POST") {
 ---
 
 <Layout title="Add Expense Report">
-  <div class="h-dvh flex flex-col items-center justify-center">
+  <Header back='/reports'></Header>
+  <div class="m-auto">
     <div class="bg-slate-700 rounded-md gap-2 flex flex-col bg-slate-700 drop-shadow-md">
       <div class="bg-slate-600 rounded-t-md p-4">
         <h1 class="text-3xl font-bold text-white">Add Expense Report</h1>
