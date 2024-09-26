@@ -38,7 +38,7 @@ export default $config({
       },
       transform: {
         route: {
-          handler: (args, opts) => {
+          handler: (args) => {
             args.environment = {
               EXPENSE_REPORTS_TABLE: expenseReportsTable.name
             };
@@ -64,7 +64,7 @@ export default $config({
       }]
     });
 
-    expensesApi.route("GET /reports/{id}", {
+    expensesApi.route("GET /reports/{reportId}", {
       handler: "src/functions/get-expense-report.handler",
       permissions: [{
         actions: ["dynamodb:GetItem"],
@@ -72,15 +72,15 @@ export default $config({
       }]
     });
 
-    expensesApi.route("POST /reports/{id}/expenses", {
-      handler: "src/functions/add-expense.handler",
+    expensesApi.route("POST /reports/{reportId}/expenses", {
+      handler: "src/functions/put-expense.handler",
       permissions: [{
         actions: ["dynamodb:PutItem"],
         resources: [expenseReportsTable.arn]
       }]
     });
 
-    expensesApi.route("GET /reports/{id}/expenses", {
+    expensesApi.route("GET /reports/{reportId}/expenses", {
       handler: "src/functions/get-expenses.handler",
       permissions: [{
         actions: ["dynamodb:Query"],
@@ -88,7 +88,23 @@ export default $config({
       }]
     });
 
-    new sst.aws.Astro("ExpenseReportWebApp", {
+    expensesApi.route("GET /reports/{reportId}/expenses/{expenseId}", {
+      handler: "src/functions/get-expense.handler",
+      permissions: [{
+        actions: ["dynamodb:GetItem"],
+        resources: [expenseReportsTable.arn]
+      }]
+    });
+
+    expensesApi.route("PUT /reports/{reportId}/expenses/{expenseId}", {
+      handler: "src/functions/put-expense.handler",
+      permissions: [{
+        actions: ["dynamodb:PutItem"],
+        resources: [expenseReportsTable.arn]
+      }]
+    });
+
+    const expenseReportWebApp = new sst.aws.Astro("ExpenseReportWebApp", {
       environment: {
         PUBLIC_EXPENSE_REPORT_API: expensesApi.url
       }

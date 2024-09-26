@@ -1,7 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { PutCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { ipToId } from "./shared/utils.mjs";
-import { ulid } from 'ulid'
 
 const client = new DynamoDBClient({});
 const dynamodb = DynamoDBDocumentClient.from(client);
@@ -9,26 +8,20 @@ const dynamodb = DynamoDBDocumentClient.from(client);
 export async function handler(event) {
   const userIpId = ipToId(event.requestContext.http.sourceIp);
 
-  const expenseReportId = event.pathParameters.id;
+  const expenseReportId = event.pathParameters.reportId;
+  const expenseId = event.pathParameters.expenseId;
 
-  const body = JSON.parse(event.body);
-  const expenseId = ulid();
-  
-  const command = new PutCommand({
+  const command = new GetCommand({
     TableName: process.env.EXPENSE_REPORTS_TABLE,
-    Item: {
+    Key: {
       pk: `${userIpId}#${expenseReportId}`,
-      sk: `expense#${expenseId}`,
-      data: {
-        id: expenseId,
-        description: body.description,
-        amount: body.amount
-      }
-    },
+      sk: `expense#${expenseId}`
+    }
   });
 
+  let response;
   try {
-    await dynamodb.send(command);
+    response = await dynamodb.send(command);
   } catch (error) {
     return {
       statusCode: 500,
@@ -37,7 +30,7 @@ export async function handler(event) {
   }
 
   return {
-    statusCode: 201,
-    body: JSON.stringify({ id: expenseId })
+    statusCode: 200,
+    body: JSON.stringify(response.Item.data)
   };
 };

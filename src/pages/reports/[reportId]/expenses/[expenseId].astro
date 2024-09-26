@@ -1,0 +1,61 @@
+---
+import Header from '../../../../components/Header.astro';
+import Layout from '../../../../layouts/Layout.astro';
+
+const { reportId, expenseId } = Astro.params;
+
+let expenseResponse;
+let expense: any;
+
+try {
+expenseResponse = await fetch(`${import.meta.env.PUBLIC_EXPENSE_REPORT_API}/reports/${reportId}/expenses/${expenseId}`);
+expenseResponse = await expenseResponse.json();
+expense = expenseResponse as any;
+} catch (error) {
+  console.error(error);
+}
+
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+    const description = data.get("description");
+    const amount = Number(data.get("amount") || 0);
+
+    await fetch(`${import.meta.env.PUBLIC_EXPENSE_REPORT_API}/reports/${reportId}/expenses/${expenseId}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        description,
+        amount
+      })
+    });
+
+    return Astro.redirect(`/reports/${reportId}/expenses`);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+  }
+}
+---
+
+<Layout title="Edit Expense">
+  <Header back=`/reports/${reportId}/expenses`></Header>
+  <div class="m-auto">
+    <div class="bg-slate-700 rounded-md gap-2 flex flex-col bg-slate-700 drop-shadow-md">
+      <div class="bg-slate-600 rounded-t-md p-4">
+        <h1 class="text-3xl font-bold text-white">Edit Expense</h1>
+      </div>
+      <form id="edit-form" method="POST" class="p-4 flex flex-col">
+        <div class="flex flex-col">
+          <label class="uppercase text-slate-400 text-sm font-bold">Description</label>
+          <input value={expense.description} class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" placeholder="Describe your expense" type="text" name="description" required/>
+        </div>
+        <div class="flex flex-col">
+          <label class="uppercase text-slate-400 text-sm font-bold">Amount</label>
+          <input value={expense.amount} class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" placeholder="Enter expense amount" type="number" name="amount" step=".01" required/>
+        </div>
+        <button class="self-end drop-shadow-md rounded-md p-1 px-3 m-2 bg-emerald-600 text-white hover:bg-emerald-700">Submit</button>
+      </form>
+    </div>
+  </div>
+</Layout>
