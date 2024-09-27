@@ -104,7 +104,7 @@ export default $config({
       }]
     });
 
-    const expenseReportWebApp = new sst.aws.Astro("ExpenseReportWebApp", {
+    new sst.aws.Astro("ExpenseReportWebApp", {
       environment: {
         PUBLIC_EXPENSE_REPORT_API: expensesApi.url
       }

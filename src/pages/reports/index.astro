@@ -1,7 +1,7 @@
 ---
-import Header from '../../components/Header.astro';
-import Layout from '../../layouts/Layout.astro';
-import type { ExpenseReport } from '../../shared/ExpenseReport';
+import Header from '@components/Header.astro';
+import Layout from '@layouts/Layout.astro';
+import type { ExpenseReport } from '@shared/ExpenseReport';
 
 let reportsResponse;
 
@@ -57,16 +57,16 @@ const reports: ExpenseReport[] = (reportsResponse as any)?.items || [];
 </Layout>
 
 <script>
-  const rowButtons = document.querySelectorAll('tr.t-body-row');
+  const rows = document.querySelectorAll('tr.t-body-row');
   const addReportButton = document.getElementById('add-report');
 
   addReportButton?.addEventListener('click', () => {
     window.location.assign('reports/add');
   });
 
-  rowButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      window.location.assign(`reports/${button.id}/expenses`);
+  rows.forEach((row) => {
+    row.addEventListener('click', () => {
+      window.location.assign(`reports/${row.id}/expenses`);
     });
   });
 

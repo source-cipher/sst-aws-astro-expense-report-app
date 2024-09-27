@@ -1,0 +1,69 @@
+---
+interface Props {
+  tabNames: string[];
+};
+
+const { tabNames } = Astro.props;
+
+const slots: any[] = [];
+
+for (let i = 0; i < tabNames.length; i++) {
+  slots.push({ name: tabNames[i], html: await Astro.slots.render(tabNames[i]) });
+}
+---
+
+<div class="flex">
+{
+  tabNames.map((tabName: string) => (
+    <button class="flex-grow text-white p-4 hover:tab-button-hover" id="tab-button">{tabName}</button>
+  ))
+}
+</div>
+
+<div id="tab-content" class="flex flex-col flex-grow">
+  {
+    slots.map((slot: any, index: number) => (
+      <div class:list={[{ hidden: index !== 0 }]} id={slot.name}>
+        <Fragment set:html={slot.html} />
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  const tabButtons = document.querySelectorAll('button#tab-button');
+
+  let activeTabButton = tabButtons[0];
+  activeTabButton?.classList.add('tab-button-active');
+
+  tabButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      activeTabButton?.classList.remove('tab-button-active');
+      button.classList.add('tab-button-active');
+      activeTabButton = button;
+
+      const contentContainer = document.getElementById('tab-content');
+      const contentToShow = document.getElementById(`${button.textContent}`);
+
+      const contentContainerChildren: Element[] = [...contentContainer?.children || []]
+      const contentToHide = contentContainerChildren.find((c: any) => !c?.classList.contains('hidden'));
+
+      contentToHide?.classList?.add('hidden');
+      contentToShow?.classList?.remove('hidden');
+    });
+  });
+</script>
+
+<style>
+  @tailwind components;
+
+  @layer components {
+    .tab-button-active {
+      @apply border-b-4 border-white bg-slate-700
+    }
+
+    .tab-button-hover {
+      @apply border-b-4 border-white bg-slate-600
+    }
+  }
+</style>
