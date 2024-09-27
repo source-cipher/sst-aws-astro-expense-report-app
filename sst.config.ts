@@ -43,6 +43,7 @@ export default $config({
               EXPENSE_REPORTS_TABLE: expenseReportsTable.name
             };
             args.architecture = "arm64";
+            args.runtime = "nodejs20.x";
           }
         }
       }
