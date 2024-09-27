@@ -81,6 +81,13 @@ const total = expenses.reduce((acc, expense) => acc + expense.amount, 0).toFixed
         </div>
       )
     }
+    {
+      !expenses.length && (
+        <div slot="Charts" class="p-2 bg-slate-700 m-4 rounded-md text-left p-2 text-slate-200  text-center">
+          Add expenses to generate charts
+        </div>
+      )
+    }
   </Tabs>
 </Layout>
 
