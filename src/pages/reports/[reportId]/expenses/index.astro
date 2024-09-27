@@ -1,8 +1,9 @@
 ---
-import Header from '../../../../components/Header.astro';
-import Layout from '../../../../layouts/Layout.astro';
-import type { Expense } from '../../../../shared/Expense';
-import type { ExpenseReport } from '../../../../shared/ExpenseReport';
+import Header from '@components/Header.astro';
+import Tabs from '@components/Tabs.astro';
+import Layout from '@layouts/Layout.astro';
+import type { Expense } from '@shared/Expense';
+import type { ExpenseReport } from '@shared/ExpenseReport';
 
 const { reportId } = Astro.params;
 
@@ -25,56 +26,140 @@ try {
   alert('An unknown error occurred. Refresh the page and try again.');
 }
 
-const total = expenses.reduce((acc, expense) => acc + expense.amount, 0) || 0;
+const total = expenses.reduce((acc, expense) => acc + expense.amount, 0).toFixed(2) || 0;
 ---
 
 <Layout title="Expenses">
   <Header back='/reports'></Header>
-  <div class="m-4 rounded-md gap-2 flex flex-col bg-slate-700 drop-shadow-md">
-    <div class="flex justify-between m-2 ">
-      <h1 class="text-3xl font-bold text-white">{expenseReport?.name}</h1>
-      <button id="add-expense" class="self-end drop-shadow-md rounded-md p-1 px-3 bg-emerald-600 text-white hover:bg-emerald-700">Add Expense</button>
+  <Tabs tabNames={['Expenses', 'Charts']}>
+    <div slot="Expenses">
+      <div class="m-4 rounded-md gap-2 flex flex-col bg-slate-700 drop-shadow-md">
+        <div class="flex justify-between m-2 ">
+          <h1 class="text-3xl font-bold text-white">{expenseReport?.name}</h1>
+          <button id="add-expense" class="self-end drop-shadow-md rounded-md p-1 px-3 bg-emerald-600 text-white hover:bg-emerald-700">Add Expense</button>
+        </div>
+        <table class="flex flex-col">
+          <thead class="p-2 uppercase bg-slate-600 text-slate-400">
+            <tr class="grid grid-cols-2 text-left">
+              <th>Description</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody class="rounded-br-md rounded-bl-md">
+            {
+              expenses.map((expense) => (
+                <tr id={expense.id} class="t-body-row grid grid-cols-2 text-left p-2 hover:bg-slate-800 hover:cursor-pointer">
+                  <td id="description" class="text-slate-200">{expense.description}</td>
+                  <td id="amount" class="text-slate-400">{expense.amount}</td>
+                </tr>
+              ))
+            }
+            {
+              !expenses.length && (
+                <tr class="grid p-2">
+                  <td class="text-slate-200 text-center">No expenses</td>
+                </tr>
+              )
+            }
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="bg-slate-700 m-4 rounded-md grid grid-cols-2 text-left p-2 text-slate-200">
+        <span>
+          Total
+        </span>
+        <span>
+          {total}
+        </span>
+      </div>
     </div>
-    <table class="flex flex-col">
-      <thead class="p-2 uppercase bg-slate-600 text-slate-400">
-        <tr class="grid grid-cols-2 text-left">
-          <th>Description</th>
-          <th>Amount</th>
-        </tr>
-      </thead>
-      <tbody class="rounded-br-md rounded-bl-md">
-        {
-          expenses.map((expense) => (
-            <tr class="grid grid-cols-2 text-left border-b border-slate-500 last:border-0 p-2">
-              <td class="text-slate-200">{expense.description}</td>
-              <td class="text-slate-400">{expense.amount}</td>
-            </tr>
-          ))
-        }
-        {
-          !expenses.length && (
-            <tr class="grid p-2">
-              <td class="text-slate-200 text-center">No expenses</td>
-            </tr>
-          )
-        }
-      </tbody>
-    </table>
-  </div>
-  
-  <div class="bg-slate-700 m-4 rounded-md grid grid-cols-2 text-left p-2 text-slate-200">
-    <span>
-      Total
-    </span>
-    <span>
-      {total}
-    </span>
-  </div>
+    {
+      expenses.length > 0 && (
+        <div slot="Charts" class="h-[70vh] flex justify-center relative text-center p-4">
+          <canvas id="doughnutChart"></canvas>
+        </div>
+      )
+    }
+    {
+      !expenses.length && (
+        <div slot="Charts" class="p-2 bg-slate-700 m-4 rounded-md text-left p-2 text-slate-200  text-center">
+          Add expenses to generate charts
+        </div>
+      )
+    }
+  </Tabs>
 </Layout>
 
 <script>
+  import {Chart } from 'chart.js/auto';
+  import ChartDataLabels from 'chartjs-plugin-datalabels';
+  Chart.register(ChartDataLabels);
+
+  const chartElement = document.getElementById('doughnutChart');
+
+  const data: any[] = [];
+  let total = 0;
+
+  const rows = document.querySelectorAll('tr.t-body-row');
+  rows.forEach((row) => {
+    row.addEventListener('click', () => {
+      window.location.assign(`expenses/${row.id}`);
+    });
+
+    const rowCols: Element[] = [...row.children]
+    const amount= rowCols.find(cell => cell.id === 'amount')?.textContent;
+    total += Number(amount || 0);
+
+    data.push({ value: amount, label: row.childNodes[1].textContent});
+  });
+
   const addExpenseButton = document.getElementById('add-expense');
   addExpenseButton?.addEventListener('click', () => {
     window.location.assign(`expenses/add`);
   });
+
+  const plugins: any = {
+    datalabels: {
+      backgroundColor: function(context: any) {
+        return context.dataset.backgroundColor;
+      },
+      display: 'auto',
+      borderColor: 'white',
+      borderRadius: 25,
+      borderWidth: 2,
+      color: 'white',
+      font: {
+        weight: 'bold'
+      },
+      padding: 6,
+      formatter: (val: any, ctx: any) => {
+        return `${val}%`;
+      }
+    },
+    tooltip: {
+      callbacks: {
+        label: (context: any) => {
+          return `${context.parsed}%`;
+        }
+      }
+    }
+  };
+
+  if (chartElement) {
+    new Chart(chartElement as any, {
+      type: 'doughnut',
+      data: {
+        labels: data.map((d) => d.label),
+        datasets: [{
+          data: data.map((d) => `${((Number(d.value)/total)*100).toFixed(2)}`),
+          borderWidth: 1
+        }]
+      },
+      options: {    
+        responsive: true,
+        plugins
+      }
+    });
+  }
 </script>

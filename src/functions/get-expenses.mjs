@@ -8,7 +8,7 @@ const dynamodb = DynamoDBDocumentClient.from(client);
 export async function handler(event) {
 
   const userIpId = ipToId(event.requestContext.http.sourceIp);
-  const expenseReportId = event.pathParameters.id;
+  const expenseReportId = event.pathParameters.reportId;
 
   const command = new QueryCommand({
     TableName: process.env.EXPENSE_REPORTS_TABLE,
