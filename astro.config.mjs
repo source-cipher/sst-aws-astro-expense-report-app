@@ -11,6 +11,7 @@ export default defineConfig({
   },
   adapter: aws(),
   vite: {
+    // @ts-expect-error - Type mismatch between Astro's Vite and Tailwind's Vite
     plugins: [tailwindcss()]
   }
 });
