@@ -133,7 +133,7 @@ const total = expenses.reduce((acc, expense) => acc + expense.amount, 0).toFixed
         weight: 'bold'
       },
       padding: 6,
-      formatter: (val: any, ctx: any) => {
+      formatter: (val: any) => {
         return `${val}%`;
       }
     },
