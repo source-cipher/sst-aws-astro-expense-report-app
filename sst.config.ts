@@ -1,7 +1,7 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
 export default $config({
-  console:{
+  console: {
     autodeploy: {
       target(event) {
         if (event.type === "branch" && event.branch === "master" && event.action === "pushed") {
@@ -43,7 +43,7 @@ export default $config({
               EXPENSE_REPORTS_TABLE: expenseReportsTable.name
             };
             args.architecture = "arm64";
-            args.runtime = "nodejs20.x";
+            args.runtime = "nodejs24.x" as any;
           }
         }
       }
